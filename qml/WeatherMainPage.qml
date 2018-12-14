@@ -140,11 +140,11 @@ Page {
 
     Repeater {
       model: [
-        { day: Qt.locale().dayName(0, Locale.ShortFormat), high: DataModel.weatherData.maxWeatherTemp, low: DataModel.weatherData.minWeatherTemp, sourceIcon: DataModel.weatherData.weatherIconUrl },//TODO: wiered behaviour
-        { day: Qt.locale().dayName(0, Locale.ShortFormat), high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
-        { day: Qt.locale().dayName(2, Locale.ShortFormat), high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
-        { day: Qt.locale().dayName(3, Locale.ShortFormat), high: DataModel.forecastData[3].temp_max, low: DataModel.forecastData[3].temp_min, sourceIcon: DataModel.forecastData[3].weatherIconUrl },
-        { day: Qt.locale().dayName(4, Locale.ShortFormat), high: DataModel.forecastData[4].temp_max, low: DataModel.forecastData[4].temp_min, sourceIcon: DataModel.forecastData[4].weatherIconUrl }
+        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.weatherData.weatherIconUrl },//TODO: wiered behaviour
+        { day: DataModel.forecastData[1].time, high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
+        { day: DataModel.forecastData[2].time, high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
+        { day: DataModel.forecastData[3].time, high: DataModel.forecastData[3].temp_max, low: DataModel.forecastData[3].temp_min, sourceIcon: DataModel.forecastData[3].weatherIconUrl },
+        { day: DataModel.forecastData[4].time, high: DataModel.forecastData[4].temp_max, low: DataModel.forecastData[4].temp_min, sourceIcon: DataModel.forecastData[4].weatherIconUrl }
       ]
 
       Column {
