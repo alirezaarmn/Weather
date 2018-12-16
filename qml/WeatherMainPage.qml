@@ -2,6 +2,7 @@ import QtQuick 2.4
 import QtQuick.Controls 1.2
 import "."
 import VPlayApps 1.0
+import QtCharts 2.2
 
 Page {
   id: page
@@ -71,6 +72,23 @@ Page {
 
   }
 
+  ChartView {
+    id: chartView
+    width: parent.width
+    height: parent.height * 0.5
+
+    SplineSeries {
+        id: mySeries2
+        name: "SplineSeries2"
+        XYPoint { x: 1.0; y: 0.0 }
+        XYPoint { x: 1.1; y: 3.2 }
+        XYPoint { x: 1.9; y: 2.4 }
+        XYPoint { x: 4.1; y: 2.1 }
+        XYPoint { x: 2.9; y: 2.6 }
+        XYPoint { x: 3.4; y: 2.3 }
+        XYPoint { x: 25.1; y: 13.1 }
+    }
+  }
   // Centered content
   Column {
     id: col
