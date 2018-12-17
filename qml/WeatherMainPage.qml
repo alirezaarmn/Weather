@@ -3,6 +3,7 @@ import QtQuick.Controls 1.2
 import "."
 import VPlayApps 1.0
 import QtCharts 2.2
+import CustomPlot 1.0
 
 Page {
   id: page
@@ -26,13 +27,13 @@ Page {
     gradient: Gradient {
       GradientStop {
         position: 0
-        color: today.temperature < 20 ? "#1AD6FD" : "#FF5E3A"
+        color: DataModel.weatherData.weatherTemp < 20 ? "#1AD6FD" : "#FF5E3A"
 
         Behavior on color { ColorAnimation { duration: 1500 } }
       }
       GradientStop {
         position: 1
-        color: today.temperature < 20 ? "#1D62F0" : "#FF2A68"
+        color: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
 
         Behavior on color { ColorAnimation { duration: 1000 } }
       }
@@ -72,27 +73,23 @@ Page {
 
   }
 
-  ChartView {
-    id: chartView
-    width: parent.width
-    height: parent.height * 0.5
+  CustomPlotItem {
 
-    SplineSeries {
-        id: mySeries2
-        name: "SplineSeries2"
-        XYPoint { x: 1.0; y: 0.0 }
-        XYPoint { x: 1.1; y: 3.2 }
-        XYPoint { x: 1.9; y: 2.4 }
-        XYPoint { x: 4.1; y: 2.1 }
-        XYPoint { x: 2.9; y: 2.6 }
-        XYPoint { x: 3.4; y: 2.3 }
-        XYPoint { x: 25.1; y: 13.1 }
-    }
+      id: customPlot
+      width: Math.min(parent.width - dp(20), dp(450))
+      height: parent.height * 0.25
+      anchors.horizontalCenter: parent.horizontalCenter
+      y: parent.height - height - dp(10)
+
+      Component.onCompleted: initCustomPlot()
+
   }
-  // Centered content
+
+  // Centered content//TODO: it's not center content anymore
   Column {
     id: col
-    anchors.centerIn: parent
+    anchors.horizontalCenter: parent.horizontalCenter
+    y: dp(80)
 
     // Temperature
     AppText {

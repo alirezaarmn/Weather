@@ -2,11 +2,14 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 
+#include "qcustomplot/CustomPlotItem.h"
 
 int main(int argc, char *argv[])
 {
 
   QApplication app(argc, argv);
+
+  qmlRegisterType<CustomPlotItem>("CustomPlot", 1, 0, "CustomPlotItem");
 
   VPApplication vplay;
   vplay.setPreservePlatformFonts(true);

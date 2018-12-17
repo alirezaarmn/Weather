@@ -1,6 +1,8 @@
 # allows to add DEPLOYMENTFOLDERS and links to the V-Play library and QtCreator auto-completion
 CONFIG += v-play
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+
 qmlFolder.source = qml
 DEPLOYMENTFOLDERS += qmlFolder # comment for publishing
 
@@ -23,7 +25,12 @@ RESOURCES += \
 
 
 # The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp
+SOURCES += main.cpp \
+           qcustomplot/qcustomplot.cpp \
+    qcustomplot/CustomPlotItem.cpp
+
+HEADERS += qcustomplot/qcustomplot.h \
+    qcustomplot/CustomPlotItem.h
 
 DISTFILES += \
     qml/DataModel.qml \
