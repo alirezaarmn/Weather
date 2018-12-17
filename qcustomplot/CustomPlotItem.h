@@ -10,11 +10,18 @@ class CustomPlotItem : public QQuickPaintedItem
 {
     Q_OBJECT
 
+    Q_PROPERTY(QColor colorBackground READ getColorBackground WRITE setColorBackground NOTIFY colorBackgroundChanged)
+
+Q_SIGNALS:
+    void colorBackgroundChanged(QColor author);
+
 public:
     CustomPlotItem( QQuickItem* parent = nullptr );
     virtual ~CustomPlotItem();
 
     void paint( QPainter* painter );
+
+    QColor getColorBackground();
 
     Q_INVOKABLE void initCustomPlot();
 
@@ -29,11 +36,15 @@ protected:
 
 private:
     QCustomPlot*         m_CustomPlot;
+    QColor _colorBackground;
+
+    void setColorBackground(QColor color);
 
 private slots:
     void graphClicked( QCPAbstractPlottable* plottable );
     void onCustomReplot();
     void updateCustomPlotSize();
+    void setBackground(QColor color);
 
 };
 #endif // CUSTOMPLOTITEM_H

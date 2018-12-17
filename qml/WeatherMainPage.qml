@@ -81,8 +81,11 @@ Page {
       anchors.horizontalCenter: parent.horizontalCenter
       y: parent.height - height - dp(10)
 
-      Component.onCompleted: initCustomPlot()
+      colorBackground: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
 
+      Component.onCompleted: {
+          initCustomPlot()
+      }
   }
 
   // Centered content//TODO: it's not center content anymore

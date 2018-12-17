@@ -4,7 +4,7 @@
 #include <QDebug>
 
 CustomPlotItem::CustomPlotItem( QQuickItem* parent ) : QQuickPaintedItem( parent )
-    , m_CustomPlot( nullptr )
+    , m_CustomPlot( new QCustomPlot() )
 {
     setFlag( QQuickItem::ItemHasContents, true );
     // setRenderTarget(QQuickPaintedItem::FramebufferObject);
@@ -13,6 +13,7 @@ CustomPlotItem::CustomPlotItem( QQuickItem* parent ) : QQuickPaintedItem( parent
 
     connect( this, &QQuickPaintedItem::widthChanged, this, &CustomPlotItem::updateCustomPlotSize );
     connect( this, &QQuickPaintedItem::heightChanged, this, &CustomPlotItem::updateCustomPlotSize );
+    connect(this, &CustomPlotItem::colorBackgroundChanged, this, &CustomPlotItem::setBackground);
 }
 
 CustomPlotItem::~CustomPlotItem()
@@ -23,17 +24,16 @@ CustomPlotItem::~CustomPlotItem()
 
 void CustomPlotItem::initCustomPlot()
 {
-    m_CustomPlot = new QCustomPlot();
-
-//    updateCustomPlotSize();
-
-//    setupQuadraticDemo( m_CustomPlot );
-
     connect( m_CustomPlot, &QCustomPlot::afterReplot, this, &CustomPlotItem::onCustomReplot );
 
     m_CustomPlot->replot();
 }
 
+void CustomPlotItem::setBackground(QColor color)
+{
+    m_CustomPlot->setBackground(QBrush(color));
+    m_CustomPlot->axisRect()->setBackground(QBrush(color));
+}
 
 void CustomPlotItem::paint( QPainter* painter )
 {
@@ -46,6 +46,20 @@ void CustomPlotItem::paint( QPainter* painter )
         m_CustomPlot->toPainter( &qcpPainter );
 
         painter->drawPixmap( QPoint(), picture );
+    }
+}
+
+QColor CustomPlotItem::getColorBackground()
+{
+    return _colorBackground;
+}
+
+void CustomPlotItem::setColorBackground(QColor color)
+{
+    if (color != _colorBackground)
+    {
+        _colorBackground = color;
+        emit colorBackgroundChanged(color);
     }
 }
 
