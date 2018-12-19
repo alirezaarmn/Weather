@@ -29,7 +29,7 @@ Item {
 
     }
 
-    function formtUTC(utc) {
+    function formatUTC(utc) {
 
         var date = new Date(utc);
         // Hours part from the timestamp
@@ -49,10 +49,15 @@ Item {
                 'temp_max': parsedWeatherForcast.list[index].main.temp_max,
                 'weatherIconUrl': "http://openweathermap.org/img/w/" + parsedWeatherForcast.list[index].weather[0].icon + ".png",
                 'weatherCondition': parsedWeatherForcast.list[index].weather[0].main,
-                'time': formtUTC(parsedWeatherForcast.list[index].dt*1000)
+                'time': formatUTC(parsedWeatherForcast.list[index].dt*1000)
             }
 
             dataModel.forecastData.push(temp)
+        }
+
+        //
+        for(index = 0; index < 5; ++index){
+           console.log(dataModel.forecastData[index].time)
         }
     }
 }

@@ -13,8 +13,10 @@ Page {
   readonly property string weatherServiceAppId: "d8ed259735b17a417d92789cd24abae6";
 
   Component.onCompleted: {
-      loadJsonData("weather")
       loadJsonData("forecast")
+      loadJsonData("weather")
+
+      console.log("SSSSSSSSSSSSSSSSSSSSSS",DataModel.forecastData.length)
   }
 
   // Background
@@ -158,7 +160,7 @@ Page {
 
     Repeater {
       model: [
-        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.weatherData.weatherIconUrl },//TODO: wiered behaviour
+        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.forecastData[0].weatherIconUrl },//TODO: wiered behaviour
         { day: DataModel.forecastData[1].time, high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
         { day: DataModel.forecastData[2].time, high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
         { day: DataModel.forecastData[3].time, high: DataModel.forecastData[3].temp_max, low: DataModel.forecastData[3].temp_min, sourceIcon: DataModel.forecastData[3].weatherIconUrl },

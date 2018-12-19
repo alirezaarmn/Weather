@@ -26,7 +26,17 @@ void CustomPlotItem::initCustomPlot()
 {
     connect( m_CustomPlot, &QCustomPlot::afterReplot, this, &CustomPlotItem::onCustomReplot );
 
+    m_CustomPlot->addGraph();
+    m_minGraphIndex = m_CustomPlot->graphCount() - 1;
+    m_CustomPlot->addGraph();
+    m_maxGraphIndex = m_CustomPlot->graphCount() - 1;
+
     m_CustomPlot->replot();
+}
+
+void CustomPlotItem::setPlotData(QVector<double> xAxis, QVector<double> yAxis)
+{
+    m_CustomPlot->graph(m_minGraphIndex)->addData(xAxis, yAxis);
 }
 
 void CustomPlotItem::setBackground(QColor color)

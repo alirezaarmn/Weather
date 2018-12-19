@@ -24,6 +24,7 @@ public:
     QColor getColorBackground();
 
     Q_INVOKABLE void initCustomPlot();
+    Q_INVOKABLE void setPlotData(QVector<double> xAxis, QVector<double> yAxis);
 
 protected:
     void routeMouseEvents( QMouseEvent* event );
@@ -37,6 +38,7 @@ protected:
 private:
     QCustomPlot*         m_CustomPlot;
     QColor _colorBackground;
+    int m_minGraphIndex, m_maxGraphIndex;
 
     void setColorBackground(QColor color);
 
