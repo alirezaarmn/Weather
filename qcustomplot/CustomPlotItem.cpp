@@ -26,10 +26,21 @@ void CustomPlotItem::initCustomPlot()
 {
     connect( m_CustomPlot, &QCustomPlot::afterReplot, this, &CustomPlotItem::onCustomReplot );
 
-    m_CustomPlot->addGraph();
+    m_CustomPlot->addGraph(); //min-Temp graph
     m_minGraphIndex = m_CustomPlot->graphCount() - 1;
-    m_CustomPlot->addGraph();
+    m_CustomPlot->addGraph(); //max-Temp graph
     m_maxGraphIndex = m_CustomPlot->graphCount() - 1;
+
+    m_CustomPlot->addGraph(); // blue line
+    m_CustomPlot->graph(m_minGraphIndex)->setPen(QPen(QColor(40, 110, 255)));
+    m_CustomPlot->addGraph(); // red line
+    m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 110, 40)));
+
+    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+    timeTicker->setTimeFormat("%h:%m:%s");
+    m_CustomPlot->xAxis->setTicker(timeTicker);
+    m_CustomPlot->axisRect()->setupFullAxesBox();
+    m_CustomPlot->yAxis->setRange(-1.2, 1.2);
 
     m_CustomPlot->replot();
 }
