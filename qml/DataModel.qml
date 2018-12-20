@@ -11,6 +11,8 @@ Item {
 
     property var forecastData: []
 
+    signal plotData(var xAxis, var yAxis)
+
     function clearData()  {//TODO
         // Reset all data stored in the model and the cache
 //        setModelData1(false, "", undefined, undefined, "", "", false)
@@ -59,5 +61,20 @@ Item {
         for(index = 0; index < 5; ++index){
            console.log(dataModel.forecastData[index].time)
         }
+
+        var x = []
+        var y = []
+        x.push(parsedWeatherForcast.list[0].dt*1000)
+        x.push(parsedWeatherForcast.list[0].dt*1000)
+        x.push(parsedWeatherForcast.list[0].dt*1000)
+        x.push(parsedWeatherForcast.list[0].dt*1000)
+        x.push(parsedWeatherForcast.list[0].dt*1000)
+        y.push(DataModel.forecastData[0].temp_max)
+        y.push(DataModel.forecastData[1].temp_max)
+        y.push(DataModel.forecastData[2].temp_max)
+        y.push(DataModel.forecastData[3].temp_max)
+        y.push(DataModel.forecastData[4].temp_max)
+
+        plotData(x, y)
     }
 }

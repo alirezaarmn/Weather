@@ -2,6 +2,7 @@
 
 #include "qcustomplot.h"
 #include <QDebug>
+#include <algorithm>
 
 CustomPlotItem::CustomPlotItem( QQuickItem* parent ) : QQuickPaintedItem( parent )
     , m_CustomPlot( new QCustomPlot() )
@@ -37,17 +38,22 @@ void CustomPlotItem::initCustomPlot()
     m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 110, 40)));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-    timeTicker->setTimeFormat("%h:%m:%s");
+    timeTicker->setTimeFormat("%h:%m");
     m_CustomPlot->xAxis->setTicker(timeTicker);
-    m_CustomPlot->axisRect()->setupFullAxesBox();
-    m_CustomPlot->yAxis->setRange(-1.2, 1.2);
+
+    m_CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
+                                      QCP::iSelectLegend | QCP::iSelectPlottables);
 
     m_CustomPlot->replot();
 }
 
 void CustomPlotItem::setPlotData(QVector<double> xAxis, QVector<double> yAxis)
 {
+    m_CustomPlot->xAxis->setRange(*std::min_element(xAxis.constBegin(), xAxis.constEnd()), *std::max_element(xAxis.constBegin(), xAxis.constEnd()));
+    m_CustomPlot->yAxis->setRange(*std::min_element(yAxis.constBegin(), yAxis.constEnd()), *std::max_element(yAxis.constBegin(), yAxis.constEnd()));
+
     m_CustomPlot->graph(m_minGraphIndex)->addData(xAxis, yAxis);
+    m_CustomPlot->replot();
 }
 
 void CustomPlotItem::setBackground(QColor color)

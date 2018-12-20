@@ -12,6 +12,14 @@ Page {
   property string cityName: "Sydney"
   readonly property string weatherServiceAppId: "d8ed259735b17a417d92789cd24abae6";
 
+  Connections {
+    target: DataModel
+    // the dataLoaded signal provides a jsonDataString parameter
+    onPlotData: {
+        customPlot.setPlotData(xAxis, yAxis)
+    }
+  }
+
   Component.onCompleted: {
       loadJsonData("forecast")
       loadJsonData("weather")
