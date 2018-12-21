@@ -11,7 +11,7 @@ Item {
 
     property var forecastData: []
 
-    signal plotData(var xAxis, var yAxis)
+    signal plotData(var time, var min, var max)
 
     function clearData()  {//TODO
         // Reset all data stored in the model and the cache
@@ -21,26 +21,24 @@ Item {
     function updateWeatherFromJson(parsedWeatherJson) {
         dataModel.weatherData = {
             'weatherForCity': parsedWeatherJson.name + ", " + parsedWeatherJson.sys.country,
-            'weatherDate': new Date(),//TODO
             'weatherTemp': parsedWeatherJson.main.temp,
             'minWeatherTemp': parsedWeatherJson.main.temp_min,
             'maxWeatherTemp': parsedWeatherJson.main.temp_max,
             'weatherCondition': parsedWeatherJson.weather[0].main,
             'weatherIconUrl': "http://openweathermap.org/img/w/" + parsedWeatherJson.weather[0].icon + ".png"
         }
-
     }
 
     function formatUTC(utc) {
-
         var date = new Date(utc);
         // Hours part from the timestamp
         var hours = date.getHours();
         // Minutes part from the timestamp
         var minutes = "0" + date.getMinutes();
 
-        // Will display time in 10:30:23 format
-        return hours + ':' + minutes.substr(-2);
+        // Will display time in 30:23 format
+        var result = Number(hours).toString() + ':' + Number(minutes.substr(-2)).toString();
+        return result
     }
 
     function updateForecastFromJson(parsedWeatherForcast) {
@@ -57,24 +55,26 @@ Item {
             dataModel.forecastData.push(temp)
         }
 
-        //
-        for(index = 0; index < 5; ++index){
-           console.log(dataModel.forecastData[index].time)
-        }
+        //provide data for plot
+        var time = []
+        var min = []
+        var max = []
+        time.push(forecastData[0].time)
+        time.push(forecastData[1].time)
+        time.push(forecastData[2].time)
+        time.push(forecastData[3].time)
+        time.push(forecastData[4].time)
+        min.push(forecastData[0].temp_min)
+        min.push(forecastData[1].temp_min)
+        min.push(forecastData[2].temp_min)
+        min.push(forecastData[3].temp_min)
+        min.push(forecastData[4].temp_min)
+        max.push(forecastData[0].temp_max)
+        max.push(forecastData[1].temp_max)
+        max.push(forecastData[2].temp_max)
+        max.push(forecastData[3].temp_max)
+        max.push(forecastData[4].temp_max)
 
-        var x = []
-        var y = []
-        x.push(parsedWeatherForcast.list[0].dt*1000)
-        x.push(parsedWeatherForcast.list[0].dt*1000)
-        x.push(parsedWeatherForcast.list[0].dt*1000)
-        x.push(parsedWeatherForcast.list[0].dt*1000)
-        x.push(parsedWeatherForcast.list[0].dt*1000)
-        y.push(DataModel.forecastData[0].temp_max)
-        y.push(DataModel.forecastData[1].temp_max)
-        y.push(DataModel.forecastData[2].temp_max)
-        y.push(DataModel.forecastData[3].temp_max)
-        y.push(DataModel.forecastData[4].temp_max)
-
-        plotData(x, y)
+        plotData(time, min, max)
     }
 }

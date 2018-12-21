@@ -2,7 +2,6 @@ import QtQuick 2.4
 import QtQuick.Controls 1.2
 import "."
 import VPlayApps 1.0
-import QtCharts 2.2
 import CustomPlot 1.0
 
 Page {
@@ -16,15 +15,13 @@ Page {
     target: DataModel
     // the dataLoaded signal provides a jsonDataString parameter
     onPlotData: {
-        customPlot.setPlotData(xAxis, yAxis)
+        customPlot.setPlotData(time, min, max)
     }
   }
 
   Component.onCompleted: {
-      loadJsonData("forecast")
       loadJsonData("weather")
-
-      console.log("SSSSSSSSSSSSSSSSSSSSSS",DataModel.forecastData.length)
+      loadJsonData("forecast")
   }
 
   // Background
@@ -84,7 +81,6 @@ Page {
   }
 
   CustomPlotItem {
-
       id: customPlot
       width: Math.min(parent.width - dp(20), dp(450))
       height: parent.height * 0.25
@@ -163,7 +159,7 @@ Page {
 
     width: Math.min(parent.width - dp(20), dp(450))
     anchors.horizontalCenter: parent.horizontalCenter
-    y: parent.height - height - dp(10)
+    y: parent.height - height - dp(130)
     columns: 5
 
     Repeater {
@@ -222,7 +218,6 @@ Page {
 
       xhr.onreadystatechange = function() {
           if (xhr.readyState === XMLHttpRequest.DONE) {
-//              console.log("DONE: " + xhr.status + " / " + xhr.responseText)
               var parsedData = xhr.responseText ? JSON.parse(xhr.responseText) : null
 
 //              if (parsedData.cod === 200) {

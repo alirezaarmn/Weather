@@ -24,26 +24,16 @@ public:
     QColor getColorBackground();
 
     Q_INVOKABLE void initCustomPlot();
-    Q_INVOKABLE void setPlotData(QVector<double> xAxis, QVector<double> yAxis);
-
-protected:
-    void routeMouseEvents( QMouseEvent* event );
-
-    virtual void mousePressEvent( QMouseEvent* event );
-    virtual void mouseReleaseEvent( QMouseEvent* event );
-    virtual void mouseMoveEvent( QMouseEvent* event );
-    virtual void mouseDoubleClickEvent( QMouseEvent* event );
-
+    Q_INVOKABLE void setPlotData(QString time, QVector<double> minTemp, QVector<double> maxTemp);
 
 private:
-    QCustomPlot*         m_CustomPlot;
+    QCustomPlot* m_CustomPlot;
     QColor _colorBackground;
     int m_minGraphIndex, m_maxGraphIndex;
 
     void setColorBackground(QColor color);
 
 private slots:
-    void graphClicked( QCPAbstractPlottable* plottable );
     void onCustomReplot();
     void updateCustomPlotSize();
     void setBackground(QColor color);

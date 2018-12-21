@@ -7,13 +7,10 @@
 CustomPlotItem::CustomPlotItem( QQuickItem* parent ) : QQuickPaintedItem( parent )
     , m_CustomPlot( new QCustomPlot() )
 {
-    setFlag( QQuickItem::ItemHasContents, true );
-    // setRenderTarget(QQuickPaintedItem::FramebufferObject);
-    // setAcceptHoverEvents(true);
-    setAcceptedMouseButtons( Qt::AllButtons );
-
     connect( this, &QQuickPaintedItem::widthChanged, this, &CustomPlotItem::updateCustomPlotSize );
     connect( this, &QQuickPaintedItem::heightChanged, this, &CustomPlotItem::updateCustomPlotSize );
+    connect( m_CustomPlot, &QCustomPlot::afterReplot, this, &CustomPlotItem::onCustomReplot );
+    //binding "colorBackground" property
     connect(this, &CustomPlotItem::colorBackgroundChanged, this, &CustomPlotItem::setBackground);
 }
 
@@ -25,7 +22,24 @@ CustomPlotItem::~CustomPlotItem()
 
 void CustomPlotItem::initCustomPlot()
 {
-    connect( m_CustomPlot, &QCustomPlot::afterReplot, this, &CustomPlotItem::onCustomReplot );
+    QString color = "#aaffffff";
+    m_CustomPlot->xAxis->setTickLabelRotation(60);
+    m_CustomPlot->xAxis->setTickLength(0, 4);
+    m_CustomPlot->xAxis->setRange(0, 6);
+
+    m_CustomPlot->yAxis->setTickLength(0, 4);
+
+    m_CustomPlot->xAxis->setTickLabelColor(QColor(color));
+    m_CustomPlot->xAxis->setLabelColor(QColor(color));
+    m_CustomPlot->xAxis->setSubTickPen(QPen(color));
+    m_CustomPlot->xAxis->setTickPen(QPen(color));
+    m_CustomPlot->xAxis->setSubTicks(false);
+
+    m_CustomPlot->yAxis->setTickLabelColor(QColor(color));
+    m_CustomPlot->yAxis->setLabelColor(QColor(color));
+    m_CustomPlot->yAxis->setSubTickPen(QPen(color));
+    m_CustomPlot->yAxis->setTickPen(QPen(color));
+    m_CustomPlot->yAxis->setSubTicks(false);
 
     m_CustomPlot->addGraph(); //min-Temp graph
     m_minGraphIndex = m_CustomPlot->graphCount() - 1;
@@ -33,26 +47,44 @@ void CustomPlotItem::initCustomPlot()
     m_maxGraphIndex = m_CustomPlot->graphCount() - 1;
 
     m_CustomPlot->addGraph(); // blue line
-    m_CustomPlot->graph(m_minGraphIndex)->setPen(QPen(QColor(40, 110, 255)));
+    m_CustomPlot->graph(m_minGraphIndex)->setPen(QPen(QColor(0, 0, 255)));
     m_CustomPlot->addGraph(); // red line
-    m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 110, 40)));
+    m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 0, 0)));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m");
-    m_CustomPlot->xAxis->setTicker(timeTicker);
 
-    m_CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                                      QCP::iSelectLegend | QCP::iSelectPlottables);
+    m_CustomPlot->xAxis->setTicker(timeTicker);
 
     m_CustomPlot->replot();
 }
 
-void CustomPlotItem::setPlotData(QVector<double> xAxis, QVector<double> yAxis)
+void CustomPlotItem::setPlotData(QString time, QVector<double> minTemp, QVector<double> maxTemp)
 {
-    m_CustomPlot->xAxis->setRange(*std::min_element(xAxis.constBegin(), xAxis.constEnd()), *std::max_element(xAxis.constBegin(), xAxis.constEnd()));
-    m_CustomPlot->yAxis->setRange(*std::min_element(yAxis.constBegin(), yAxis.constEnd()), *std::max_element(yAxis.constBegin(), yAxis.constEnd()));
+    QVector<double> ticks;
+    QVector<QString> labels;
+    QStringList xValue = time.split(",");
+    for (int idx = 0; idx < xValue.size(); ++idx) {
+        labels.append(xValue.at(idx));
+    }
+    ticks << 1 << 2 << 3 << 4 << 5 << 6;
 
-    m_CustomPlot->graph(m_minGraphIndex)->addData(xAxis, yAxis);
+    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+    textTicker->addTicks(ticks, labels);
+    m_CustomPlot->xAxis->setTicker(textTicker);
+
+    //find the best fit for range
+    auto minMinTemp = *std::min_element(minTemp.constBegin(), minTemp.constEnd());
+    auto maxMinTemp = *std::max_element(minTemp.constBegin(), minTemp.constEnd());
+    auto minMaxTemp = *std::min_element(maxTemp.constBegin(), maxTemp.constEnd());
+    auto maxMaxTemp = *std::max_element(maxTemp.constBegin(), maxTemp.constEnd());
+    auto minRange = (minMinTemp < minMaxTemp) ? minMinTemp : minMaxTemp;
+    auto maxRange = (maxMinTemp > maxMaxTemp) ? maxMinTemp : maxMaxTemp;
+
+    m_CustomPlot->yAxis->setRange(minRange, maxRange);
+
+    m_CustomPlot->graph(m_minGraphIndex)->addData(ticks, minTemp);
+    m_CustomPlot->graph(m_maxGraphIndex)->addData(ticks, maxTemp);
     m_CustomPlot->replot();
 }
 
@@ -60,6 +92,8 @@ void CustomPlotItem::setBackground(QColor color)
 {
     m_CustomPlot->setBackground(QBrush(color));
     m_CustomPlot->axisRect()->setBackground(QBrush(color));
+    m_CustomPlot->xAxis->setBasePen(QPen(color));
+    m_CustomPlot->yAxis->setBasePen(QPen(color));
 }
 
 void CustomPlotItem::paint( QPainter* painter )
@@ -86,45 +120,8 @@ void CustomPlotItem::setColorBackground(QColor color)
     if (color != _colorBackground)
     {
         _colorBackground = color;
+        m_CustomPlot->replot();// replot in order to affect plot
         emit colorBackgroundChanged(color);
-    }
-}
-
-void CustomPlotItem::mousePressEvent( QMouseEvent* event )
-{
-    qDebug() << Q_FUNC_INFO;
-    routeMouseEvents( event );
-}
-
-void CustomPlotItem::mouseReleaseEvent( QMouseEvent* event )
-{
-    qDebug() << Q_FUNC_INFO;
-    routeMouseEvents( event );
-}
-
-void CustomPlotItem::mouseMoveEvent( QMouseEvent* event )
-{
-    routeMouseEvents( event );
-}
-
-void CustomPlotItem::mouseDoubleClickEvent( QMouseEvent* event )
-{
-    qDebug() << Q_FUNC_INFO;
-    routeMouseEvents( event );
-}
-
-void CustomPlotItem::graphClicked( QCPAbstractPlottable* plottable )
-{
-    qDebug() << Q_FUNC_INFO << QString( "Clicked on graph '%1 " ).arg( plottable->name() );
-}
-
-void CustomPlotItem::routeMouseEvents( QMouseEvent* event )
-{
-    if (m_CustomPlot)
-    {
-        QMouseEvent* newEvent = new QMouseEvent( event->type(), event->localPos(), event->button(), event->buttons(), event->modifiers() );
-        //QCoreApplication::sendEvent( m_CustomPlot, newEvent );
-        QCoreApplication::postEvent( m_CustomPlot, newEvent );
     }
 }
 
