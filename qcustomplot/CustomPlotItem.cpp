@@ -34,22 +34,16 @@ void CustomPlotItem::initCustomPlot()
     m_CustomPlot->xAxis->setSubTickPen(QPen(color));
     m_CustomPlot->xAxis->setTickPen(QPen(color));
     m_CustomPlot->xAxis->setSubTicks(false);
+    m_CustomPlot->xAxis->setLabel("Time");
 
     m_CustomPlot->yAxis->setTickLabelColor(QColor(color));
     m_CustomPlot->yAxis->setLabelColor(QColor(color));
     m_CustomPlot->yAxis->setSubTickPen(QPen(color));
     m_CustomPlot->yAxis->setTickPen(QPen(color));
     m_CustomPlot->yAxis->setSubTicks(false);
+    m_CustomPlot->yAxis->setLabel("°C");
 
-    m_CustomPlot->addGraph(); //min-Temp graph
-    m_minGraphIndex = m_CustomPlot->graphCount() - 1;
-    m_CustomPlot->addGraph(); //max-Temp graph
-    m_maxGraphIndex = m_CustomPlot->graphCount() - 1;
-
-    m_CustomPlot->addGraph(); // blue line
-    m_CustomPlot->graph(m_minGraphIndex)->setPen(QPen(QColor(0, 0, 255)));
-    m_CustomPlot->addGraph(); // red line
-    m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 0, 0)));
+    resetPlot();
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m");
@@ -61,6 +55,7 @@ void CustomPlotItem::initCustomPlot()
 
 void CustomPlotItem::setPlotData(QString time, QVector<double> minTemp, QVector<double> maxTemp)
 {
+    resetPlot();// making plot work properly, we have to reset plot. TODO: there should be another way that no need to reset plot every time.
     QVector<double> ticks;
     QVector<QString> labels;
     QStringList xValue = time.split(",");
@@ -86,6 +81,12 @@ void CustomPlotItem::setPlotData(QString time, QVector<double> minTemp, QVector<
     m_CustomPlot->graph(m_minGraphIndex)->addData(ticks, minTemp);
     m_CustomPlot->graph(m_maxGraphIndex)->addData(ticks, maxTemp);
     m_CustomPlot->replot();
+    setVisiblity(true);
+}
+
+void CustomPlotItem::setVisiblity(bool value)
+{
+    setVisible(value);
 }
 
 void CustomPlotItem::setBackground(QColor color)
@@ -123,6 +124,15 @@ void CustomPlotItem::setColorBackground(QColor color)
         m_CustomPlot->replot();// replot in order to affect plot
         emit colorBackgroundChanged(color);
     }
+}
+
+void CustomPlotItem::resetPlot()
+{
+    m_CustomPlot->clearGraphs();
+    m_CustomPlot->addGraph(); // blue line
+    m_CustomPlot->graph(m_minGraphIndex)->setPen(QPen(QColor(0, 0, 255)));
+    m_CustomPlot->addGraph(); // red line
+    m_CustomPlot->graph(m_maxGraphIndex)->setPen(QPen(QColor(255, 0, 0)));
 }
 
 void CustomPlotItem::updateCustomPlotSize()

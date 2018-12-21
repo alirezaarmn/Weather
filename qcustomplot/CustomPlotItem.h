@@ -25,13 +25,15 @@ public:
 
     Q_INVOKABLE void initCustomPlot();
     Q_INVOKABLE void setPlotData(QString time, QVector<double> minTemp, QVector<double> maxTemp);
+    Q_INVOKABLE void setVisiblity(bool value);
 
 private:
     QCustomPlot* m_CustomPlot;
     QColor _colorBackground;
-    int m_minGraphIndex, m_maxGraphIndex;
+    int m_minGraphIndex = 0, m_maxGraphIndex = 1;
 
     void setColorBackground(QColor color);
+    void resetPlot();
 
 private slots:
     void onCustomReplot();

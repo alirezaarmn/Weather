@@ -8,7 +8,7 @@ Page {
   id: page
   property int currentIndex: 0
   property string errorMsg: ""
-  property string cityName: "Sydney"
+  property var cityName: ["Kish", "Sydney", "London", "Tehran", "Vienna"]
   readonly property string weatherServiceAppId: "d8ed259735b17a417d92789cd24abae6";
 
   Connections {
@@ -22,6 +22,19 @@ Page {
   Component.onCompleted: {
       loadJsonData("weather")
       loadJsonData("forecast")
+  }
+
+  Timer {
+    running: true
+    interval: 1000 * 30
+    triggeredOnStart: true
+    repeat: true
+    onTriggered: {
+        (currentIndex == 4) ? currentIndex = 0 : ++currentIndex
+        customPlot.setVisiblity(false)
+        loadJsonData("weather")
+        loadJsonData("forecast")
+    }
   }
 
   // Background
@@ -98,7 +111,7 @@ Page {
   Column {
     id: col
     anchors.horizontalCenter: parent.horizontalCenter
-    y: dp(80)
+    y: dp(50)
 
     // Temperature
     AppText {
@@ -159,7 +172,7 @@ Page {
 
     width: Math.min(parent.width - dp(20), dp(450))
     anchors.horizontalCenter: parent.horizontalCenter
-    y: parent.height - height - dp(130)
+    y: parent.height - height - dp(180)
     columns: 5
 
     Repeater {
@@ -249,9 +262,8 @@ Page {
       }
 
       // Build query URL
-      var params = "q="+cityName+"&units=metric&appid=" + weatherServiceAppId
+      var params = "q="+cityName[currentIndex]+"&units=metric&appid=" + weatherServiceAppId
       var temp = "http://api.openweathermap.org/data/2.5/"+type+"?" + params
-      console.log(temp)
       xhr.open("GET", temp)
       xhr.send()
   }  

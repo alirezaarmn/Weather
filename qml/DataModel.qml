@@ -43,6 +43,10 @@ Item {
 
     function updateForecastFromJson(parsedWeatherForcast) {
         var index = 0
+        var time = []
+        var min = []
+        var max = []
+        dataModel.forecastData = [] //clear before add new data
         for(;index < 5; ++index) {
             var temp = {
                 'temp_min': parsedWeatherForcast.list[index].main.temp_min,
@@ -53,27 +57,12 @@ Item {
             }
 
             dataModel.forecastData.push(temp)
-        }
 
-        //provide data for plot
-        var time = []
-        var min = []
-        var max = []
-        time.push(forecastData[0].time)
-        time.push(forecastData[1].time)
-        time.push(forecastData[2].time)
-        time.push(forecastData[3].time)
-        time.push(forecastData[4].time)
-        min.push(forecastData[0].temp_min)
-        min.push(forecastData[1].temp_min)
-        min.push(forecastData[2].temp_min)
-        min.push(forecastData[3].temp_min)
-        min.push(forecastData[4].temp_min)
-        max.push(forecastData[0].temp_max)
-        max.push(forecastData[1].temp_max)
-        max.push(forecastData[2].temp_max)
-        max.push(forecastData[3].temp_max)
-        max.push(forecastData[4].temp_max)
+            //provide data for plot
+            time.push(temp.time)
+            min.push(temp.temp_min)
+            max.push(temp.temp_max)
+        }
 
         plotData(time, min, max)
     }
