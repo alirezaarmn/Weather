@@ -13,7 +13,7 @@ Page {
 
   Connections {
     target: DataModel
-    // the dataLoaded signal provides a jsonDataString parameter
+
     onPlotData: {
         customPlot.setPlotData(time, min, max)
     }
@@ -31,7 +31,7 @@ Page {
     repeat: true
     onTriggered: {
         (currentIndex == 4) ? currentIndex = 0 : ++currentIndex
-        customPlot.setVisiblity(false)
+        customPlot.setVisiblity(false) //make plot invisible in order to avoid user see unupdated info
         loadJsonData("weather")
         loadJsonData("forecast")
     }
@@ -93,21 +93,7 @@ Page {
 
   }
 
-  CustomPlotItem {
-      id: customPlot
-      width: Math.min(parent.width - dp(20), dp(450))
-      height: parent.height * 0.25
-      anchors.horizontalCenter: parent.horizontalCenter
-      y: parent.height - height - dp(10)
-
-      colorBackground: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
-
-      Component.onCompleted: {
-          initCustomPlot()
-      }
-  }
-
-  // Centered content//TODO: it's not center content anymore
+  // Centered content
   Column {
     id: col
     anchors.horizontalCenter: parent.horizontalCenter
@@ -176,8 +162,8 @@ Page {
     columns: 5
 
     Repeater {
-      model: [
-        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.forecastData[0].weatherIconUrl },//TODO: wiered behaviour
+      model: [//TODO: has some weird behaviour
+        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.forecastData[0].weatherIconUrl },
         { day: DataModel.forecastData[1].time, high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
         { day: DataModel.forecastData[2].time, high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
         { day: DataModel.forecastData[3].time, high: DataModel.forecastData[3].temp_max, low: DataModel.forecastData[3].temp_min, sourceIcon: DataModel.forecastData[3].weatherIconUrl },
@@ -226,6 +212,21 @@ Page {
     }
   }
 
+  CustomPlotItem {
+      id: customPlot
+      width: Math.min(parent.width - dp(20), dp(450))
+      height: parent.height * 0.25
+      anchors.horizontalCenter: parent.horizontalCenter
+      y: parent.height - height - dp(10)
+
+      colorBackground: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
+
+      Component.onCompleted: {
+          initCustomPlot()
+      }
+  }
+
+  //Script for getting data by REST
   function loadJsonData(type) {
       var xhr = new XMLHttpRequest
 
