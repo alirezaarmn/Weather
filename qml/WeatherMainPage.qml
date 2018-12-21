@@ -2,17 +2,39 @@ import QtQuick 2.4
 import QtQuick.Controls 1.2
 import "."
 import VPlayApps 1.0
+import CustomPlot 1.0
 
 Page {
   id: page
   property int currentIndex: 0
   property string errorMsg: ""
-  property string cityName: "Sydney"
+  property var cityName: ["Kish", "Sydney", "London", "Tehran", "Vienna"]
   readonly property string weatherServiceAppId: "d8ed259735b17a417d92789cd24abae6";
+
+  Connections {
+    target: DataModel
+    // the dataLoaded signal provides a jsonDataString parameter
+    onPlotData: {
+        customPlot.setPlotData(time, min, max)
+    }
+  }
 
   Component.onCompleted: {
       loadJsonData("weather")
       loadJsonData("forecast")
+  }
+
+  Timer {
+    running: true
+    interval: 1000 * 30
+    triggeredOnStart: true
+    repeat: true
+    onTriggered: {
+        (currentIndex == 4) ? currentIndex = 0 : ++currentIndex
+        customPlot.setVisiblity(false)
+        loadJsonData("weather")
+        loadJsonData("forecast")
+    }
   }
 
   // Background
@@ -25,13 +47,13 @@ Page {
     gradient: Gradient {
       GradientStop {
         position: 0
-        color: today.temperature < 20 ? "#1AD6FD" : "#FF5E3A"
+        color: DataModel.weatherData.weatherTemp < 20 ? "#1AD6FD" : "#FF5E3A"
 
         Behavior on color { ColorAnimation { duration: 1500 } }
       }
       GradientStop {
         position: 1
-        color: today.temperature < 20 ? "#1D62F0" : "#FF2A68"
+        color: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
 
         Behavior on color { ColorAnimation { duration: 1000 } }
       }
@@ -71,10 +93,25 @@ Page {
 
   }
 
-  // Centered content
+  CustomPlotItem {
+      id: customPlot
+      width: Math.min(parent.width - dp(20), dp(450))
+      height: parent.height * 0.25
+      anchors.horizontalCenter: parent.horizontalCenter
+      y: parent.height - height - dp(10)
+
+      colorBackground: DataModel.weatherData.weatherTemp < 20 ? "#1D62F0" : "#FF2A68"
+
+      Component.onCompleted: {
+          initCustomPlot()
+      }
+  }
+
+  // Centered content//TODO: it's not center content anymore
   Column {
     id: col
-    anchors.centerIn: parent
+    anchors.horizontalCenter: parent.horizontalCenter
+    y: dp(50)
 
     // Temperature
     AppText {
@@ -135,12 +172,12 @@ Page {
 
     width: Math.min(parent.width - dp(20), dp(450))
     anchors.horizontalCenter: parent.horizontalCenter
-    y: parent.height - height - dp(10)
+    y: parent.height - height - dp(180)
     columns: 5
 
     Repeater {
       model: [
-        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.weatherData.weatherIconUrl },//TODO: wiered behaviour
+        { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.forecastData[0].weatherIconUrl },//TODO: wiered behaviour
         { day: DataModel.forecastData[1].time, high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
         { day: DataModel.forecastData[2].time, high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
         { day: DataModel.forecastData[3].time, high: DataModel.forecastData[3].temp_max, low: DataModel.forecastData[3].temp_min, sourceIcon: DataModel.forecastData[3].weatherIconUrl },
@@ -194,7 +231,6 @@ Page {
 
       xhr.onreadystatechange = function() {
           if (xhr.readyState === XMLHttpRequest.DONE) {
-//              console.log("DONE: " + xhr.status + " / " + xhr.responseText)
               var parsedData = xhr.responseText ? JSON.parse(xhr.responseText) : null
 
 //              if (parsedData.cod === 200) {
@@ -226,9 +262,8 @@ Page {
       }
 
       // Build query URL
-      var params = "q="+cityName+"&units=metric&appid=" + weatherServiceAppId
+      var params = "q="+cityName[currentIndex]+"&units=metric&appid=" + weatherServiceAppId
       var temp = "http://api.openweathermap.org/data/2.5/"+type+"?" + params
-      console.log(temp)
       xhr.open("GET", temp)
       xhr.send()
   }  
