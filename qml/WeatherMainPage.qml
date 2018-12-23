@@ -8,7 +8,7 @@ Page {
   id: page
   property int currentIndex: 0
   property string errorMsg: ""
-  property var cityName: ["Kish", "Sydney", "London", "Tehran", "Vienna"]
+  property var cityName: ["Kish", "Sydney", "London", "Tehran", "Vienna", "Graz"]
   readonly property string weatherServiceAppId: "d8ed259735b17a417d92789cd24abae6";
 
   Connections {
@@ -20,18 +20,21 @@ Page {
   }
 
   Component.onCompleted: {
+      // send requests and update the model
       loadJsonData("weather")
       loadJsonData("forecast")
   }
 
   Timer {
     running: true
-    interval: 1000 * 30
+    interval: 1000 * 10
     triggeredOnStart: true
     repeat: true
     onTriggered: {
-        (currentIndex == 4) ? currentIndex = 0 : ++currentIndex
-        customPlot.setVisiblity(false) //make plot invisible in order to avoid user see unupdated info
+        (currentIndex == 5) ? currentIndex = 0 : ++currentIndex
+        /*make plot invisible in order to avoid user see unupdated info because
+        'forecast' request may takes more time to response. it will be visible when new data arrive*/
+        customPlot.setVisiblity(false)
         loadJsonData("weather")
         loadJsonData("forecast")
     }
@@ -152,17 +155,25 @@ Page {
     }
   }
 
-  // Bottom content
+  // Bottom contents
+  // display the forcast data for current city in following hours
   Grid {
     id: bottomGrid
 
     width: Math.min(parent.width - dp(20), dp(450))
     anchors.horizontalCenter: parent.horizontalCenter
-    y: parent.height - height - dp(180)
+    y: parent.height - height - dp(210)
     columns: 5
 
     Repeater {
-      model: [//TODO: has some weird behaviour
+      model: [
+        //TODO:
+        /*
+           This part has some weird behavior. It works perfectly with 'dataModel.weatherData'.
+           But, with 'DataModel.forecastData' does not work anymore. I don't know why this happens.
+           The only difference between these two is that 'DataModel.forecastData' is an array of
+           objects but dataModel.weatherData is an object.
+        */
         { day: DataModel.forecastData[0].time, high: DataModel.forecastData[0].temp_max, low: DataModel.forecastData[0].temp_min, sourceIcon: DataModel.forecastData[0].weatherIconUrl },
         { day: DataModel.forecastData[1].time, high: DataModel.forecastData[1].temp_max, low: DataModel.forecastData[1].temp_min, sourceIcon: DataModel.forecastData[1].weatherIconUrl },
         { day: DataModel.forecastData[2].time, high: DataModel.forecastData[2].temp_max, low: DataModel.forecastData[2].temp_min, sourceIcon: DataModel.forecastData[2].weatherIconUrl },
@@ -211,7 +222,7 @@ Page {
       }
     }
   }
-
+  // dispaly the forcast data for current city in following hours in a plot
   CustomPlotItem {
       id: customPlot
       width: Math.min(parent.width - dp(20), dp(450))
@@ -233,31 +244,34 @@ Page {
       xhr.onreadystatechange = function() {
           if (xhr.readyState === XMLHttpRequest.DONE) {
               var parsedData = xhr.responseText ? JSON.parse(xhr.responseText) : null
-
-//              if (parsedData.cod === 200) {
+            //TODO:
+              /*unexpectedly, when JSON is due to response to 'forecast' request,
+                despite "parsedData.cod"  is 200, this condition will not raise.
+                maybe the type of response in 'forecast' request is different from 'weather' request.
+                So, I check the appropriate response of 'forecast' with "parsedData.cnr""
+              */
+              if (parsedData.cod === 200 && type === "weather") {
                   // Success: received city weather data
                   errorMsg = ""
-
-                  if (type === "weather") {
-                    DataModel.updateWeatherFromJson(parsedData)
-                  } else if (type === "forecast") {
-                    DataModel.updateForecastFromJson(parsedData)
+                  DataModel.updateWeatherFromJson(parsedData)
+              }
+              else if(parsedData.cnt === 40 && type === "forecast"){
+                  DataModel.updateForecastFromJson(parsedData)
+              } else {
+                  // Issue with the REST request
+                  if (xhr.status === 0) {
+                      // The request didn't go through, e.g., no Internet connection or the server is down
+                      errorMsg = "Unable to send weather request"
+                  } else if (parsedData && parsedData.message) {
+                      // Received a response, but the server reported the request was not successful
+                      errorMsg = parsedData.message
+                  } else {
+                      // All other cases - print the HTTP response status code / message
+                      errorMsg = "Request error: " + xhr.status + " / " + xhr.statusText
                   }
-//              } else {
-//                  // Issue with the REST request
-//                  if (xhr.status === 0) {
-//                      // The request didn't go through, e.g., no Internet connection or the server is down
-//                      errorMsg = "Unable to send weather request"
-//                  } else if (parsedData && parsedData.message) {
-//                      // Received a response, but the server reported the request was not successful
-//                      errorMsg = parsedData.message
-//                  } else {
-//                      // All other cases - print the HTTP response status code / message
-//                      errorMsg = "Request error: " + xhr.status + " / " + xhr.statusText
-//                  }
-//                  DataModel.clearData()
-//                  console.log("ERORR MSG:"+errorMsg)
-//              }
+                  DataModel.clearData()
+                  console.log("ERORR MSG:"+errorMsg)
+              }
 
           }
       }

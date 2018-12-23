@@ -62,7 +62,7 @@ void CustomPlotItem::setPlotData(QString time, QVector<double> minTemp, QVector<
     for (int idx = 0; idx < xValue.size(); ++idx) {
         labels.append(xValue.at(idx));
     }
-    ticks << 1 << 2 << 3 << 4 << 5 << 6;
+    ticks << 1 << 2 << 3 << 4 << 5;
 
     QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
     textTicker->addTicks(ticks, labels);
@@ -145,6 +145,5 @@ void CustomPlotItem::updateCustomPlotSize()
 
 void CustomPlotItem::onCustomReplot()
 {
-    qDebug() << Q_FUNC_INFO;
     update();
 }
